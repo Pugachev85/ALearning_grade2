@@ -1,41 +1,53 @@
 import java.util.Objects;
 
-public class CustomHashMap<K, V> {
-    // Начальный размер массива корзин
+public class CustomHashMap<K, V> implements CustomHashMapInterface<K, V> {
+
     private static final int INITIAL_CAPACITY = 16;
-    // Коэффициент загрузки (при заполнении > 75% произойдёт resize)
     private static final float LOAD_FACTOR = 0.75f;
 
-    // Внутренний массив корзин
-    private Node[] buckets;
-    // Текущее число элементов
+    private Node<K, V>[] buckets;
+
     private int size = 0;
-    // Пороговое значение для resize
     private int threshold = (int) (INITIAL_CAPACITY * LOAD_FACTOR);
 
-    // Конструктор
+    @SuppressWarnings("unchecked")
     public CustomHashMap() {
-        buckets = new Node[INITIAL_CAPACITY];
+        this.buckets = (Node<K, V>[]) new Node[INITIAL_CAPACITY];
     }
 
-    // Вспомогательный класс узла
-    private static class Node<K, V> {
-        final K key;
-        V value;
-        Node<K, V> next;
-
-        Node(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-    }
-
-    // Хеш-функция (упрощённая)
     private int hash(Object key) {
         return key == null ? 0 : key.hashCode() & (buckets.length - 1);
     }
 
-    // Добавление элемента
+    private void resize() {
+        Node<K, V>[] oldBuckets = buckets;
+        @SuppressWarnings("unchecked")
+        Node<K, V>[] newBuckets = (Node<K, V>[]) new Node[oldBuckets.length * 2];
+        this.buckets = newBuckets;
+        this.threshold = (int) (newBuckets.length * LOAD_FACTOR);
+        this.size = 0;
+
+        for (Node<K, V> head : oldBuckets) {
+            while (head != null) {
+                put(head.key, head.value);
+                head = head.next;
+            }
+        }
+    }
+
+    private boolean hasNextElement(int currentBucketIndex, Node<K, V> currentNode) {
+        if (currentNode.next != null) {
+            return true;
+        }
+        for (int i = currentBucketIndex + 1; i < buckets.length; i++) {
+            if (buckets[i] != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void put(K key, V value) {
         if (size >= threshold) {
             resize();
@@ -43,17 +55,15 @@ public class CustomHashMap<K, V> {
         int index = hash(key);
         Node<K, V> node = buckets[index];
 
-        // Если корзина пуста — добавляем новый узел
         if (node == null) {
             buckets[index] = new Node<>(key, value);
             size++;
             return;
         }
 
-        // Иначе ищем узел с таким же ключом в цепочке
         while (node != null) {
             if (Objects.equals(key, node.key)) {
-                node.value = value; // Обновляем значение
+                node.value = value;
                 return;
             }
             if (node.next == null) {
@@ -61,12 +71,11 @@ public class CustomHashMap<K, V> {
             }
             node = node.next;
         }
-        // Добавляем новый узел в конец цепочки
         node.next = new Node<>(key, value);
         size++;
     }
 
-    // Получение значения по ключу
+    @Override
     public V get(K key) {
         int index = hash(key);
         Node<K, V> node = buckets[index];
@@ -77,10 +86,10 @@ public class CustomHashMap<K, V> {
             }
             node = node.next;
         }
-        return null; // Ключ не найден
+        return null;
     }
 
-    // Удаление элемента
+    @Override
     public void remove(K key) {
         int index = hash(key);
         Node<K, V> node = buckets[index];
@@ -89,9 +98,9 @@ public class CustomHashMap<K, V> {
         while (node != null) {
             if (Objects.equals(key, node.key)) {
                 if (prev == null) {
-                    buckets[index] = node.next; // Удаляем первый узел
+                    buckets[index] = node.next;
                 } else {
-                    prev.next = node.next; // Удаляем промежуточный узел
+                    prev.next = node.next;
                 }
                 size--;
                 return;
@@ -101,20 +110,28 @@ public class CustomHashMap<K, V> {
         }
     }
 
-    // Расширение массива (resize)
-    private void resize() {
-        Node<K, V>[] oldBuckets = buckets;
-        buckets = new Node[oldBuckets.length * 2];
-        threshold = (int) (buckets.length * LOAD_FACTOR);
-        size = 0;
+    @Override
+    public boolean containsKey(K key) {
+        int index = hash(key);
+        Node<K, V> node = buckets[index];
 
-        // Перехешируем все элементы
-        for (Node<K, V> head : oldBuckets) {
-            while (head != null) {
-                put(head.key, head.value);
-                head = head.next;
+        while (node != null) {
+            if (Objects.equals(key, node.key)) {
+                return true;
             }
+            node = node.next;
         }
+        return false;
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
     }
 
     @Override
@@ -133,7 +150,6 @@ public class CustomHashMap<K, V> {
                 sb.append("=");
                 sb.append(node.value);
 
-                // Добавляем запятую, если есть ещё элементы
                 if (hasNextElement(i, node)) {
                     sb.append(", ");
                 }
@@ -143,31 +159,18 @@ public class CustomHashMap<K, V> {
         }
 
         sb.append("}");
+
         return sb.toString();
     }
 
-    // Вспомогательный метод: проверяет, есть ли ещё элементы после текущего
-    private boolean hasNextElement(int currentBucketIndex, Node<K, V> currentNode) {
-        // Проверяем текущий список — есть ли следующий узел
-        if (currentNode.next != null) {
-            return true;
+    private static class Node<K, V> {
+        final K key;
+        V value;
+        Node<K, V> next;
+
+        Node(K key, V value) {
+            this.key = key;
+            this.value = value;
         }
-
-        // Проверяем следующие корзины
-        for (int i = currentBucketIndex + 1; i < buckets.length; i++) {
-            if (buckets[i] != null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Вспомогательные методы (для отладки)
-    public int size() {
-        return size;
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
     }
 }
