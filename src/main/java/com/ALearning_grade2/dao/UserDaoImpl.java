@@ -30,7 +30,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Optional<UserEntity> findById(Long id) {
         try (Session session = openSession()) {
-            UserEntity user = session.find(UserEntity.class, id);
+            UserEntity user = session.get(UserEntity.class, id);
             return Optional.ofNullable(user);
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при поиске пользователя по ID", e);
@@ -40,7 +40,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<UserEntity> findAll() {
         try (Session session = openSession()) {
-            Query<UserEntity> query = session.createQuery("FROM User", UserEntity.class);
+            Query<UserEntity> query = session.createQuery("FROM UserEntity", UserEntity.class);
             return query.list();
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при получении всех пользователей", e);
