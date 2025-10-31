@@ -1,7 +1,7 @@
 package com.ALearning_grade2.app;
 
 import com.ALearning_grade2.dao.UserDaoImpl;
-import com.ALearning_grade2.entity.User;
+import com.ALearning_grade2.entity.UserEntity;
 import com.ALearning_grade2.exception.InvalidUserException;
 import com.ALearning_grade2.service.UserService;
 import com.ALearning_grade2.service.impl.UserServiceImpl;
@@ -64,7 +64,7 @@ public class App {
             String email = ConsoleUtil.readString("Email: ");
             int age = ConsoleUtil.readInt("Возраст: ");
 
-            User user = new User();
+            UserEntity user = new UserEntity();
             user.setName(name);
             user.setEmail(email);
             user.setAge(age);
@@ -81,12 +81,12 @@ public class App {
 
     private void getUserById() {
         Long id = ConsoleUtil.readLong("ID пользователя: ");
-        Optional<User> user = userService.getUserById(id);
+        Optional<UserEntity> user = userService.getUserById(id);
         user.ifPresentOrElse(u -> printMessage(u.toString()), () -> printMessage("Пользователь не найден"));
     }
 
     private void getAllUsers() {
-        List<User> users = userService.getAllUsers();
+        List<UserEntity> users = userService.getAllUsers();
         if (users.isEmpty()) {
             printMessage("Пользователи не найдены");
         } else {
@@ -96,7 +96,7 @@ public class App {
 
     private void updateUser() {
         Long id = ConsoleUtil.readLong("ID пользователя для обновления: ");
-        Optional<User> existingUser = userService.getUserById(id);
+        Optional<UserEntity> existingUser = userService.getUserById(id);
 
         if (existingUser.isEmpty()) {
             printMessage("Пользователь не найден");
@@ -104,7 +104,7 @@ public class App {
         }
 
         try {
-            User user = existingUser.get();
+            UserEntity user = existingUser.get();
             user.setName(ConsoleUtil.readString("Новое имя: "));
             user.setEmail(ConsoleUtil.readString("Новый email: "));
             user.setAge(ConsoleUtil.readInt("Новый возраст: "));

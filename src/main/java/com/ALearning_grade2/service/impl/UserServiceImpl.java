@@ -1,7 +1,7 @@
 package com.ALearning_grade2.service.impl;
 
 import com.ALearning_grade2.dao.UserDao;
-import com.ALearning_grade2.entity.User;
+import com.ALearning_grade2.entity.UserEntity;
 import com.ALearning_grade2.exception.InvalidUserException;
 import com.ALearning_grade2.service.UserService;
 
@@ -16,23 +16,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUser(User user) throws InvalidUserException {
+    public void createUser(UserEntity user) throws InvalidUserException {
         validateUser(user);
         userDao.create(user);
     }
 
     @Override
-    public Optional<User> getUserById(Long id) {
+    public Optional<UserEntity> getUserById(Long id) {
         return userDao.findById(id);
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserEntity> getAllUsers() {
         return userDao.findAll();
     }
 
     @Override
-    public void updateUser(User user) throws InvalidUserException {
+    public void updateUser(UserEntity user) throws InvalidUserException {
         validateUser(user);
         userDao.update(user);
     }
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         return userDao.delete(id);
     }
 
-    private void validateUser(User user) throws InvalidUserException {
+    private void validateUser(UserEntity user) throws InvalidUserException {
         if (user.getName() == null
                 || user.getName().trim().isEmpty()) {
             throw new InvalidUserException("Имя пользователя не может быть пустым");

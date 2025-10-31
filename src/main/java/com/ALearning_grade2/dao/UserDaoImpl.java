@@ -1,6 +1,6 @@
 package com.ALearning_grade2.dao;
 
-import com.ALearning_grade2.entity.User;
+import com.ALearning_grade2.entity.UserEntity;
 import com.ALearning_grade2.exception.UserServiceException;
 import com.ALearning_grade2.factory.HibernateFactory;
 import org.hibernate.Session;
@@ -17,7 +17,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void create(User user) {
+    public void create(UserEntity user) {
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
             session.persist(user);
@@ -28,9 +28,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<UserEntity> findById(Long id) {
         try (Session session = openSession()) {
-            User user = session.get(User.class, id);
+            UserEntity user = session.find(UserEntity.class, id);
             return Optional.ofNullable(user);
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при поиске пользователя по ID", e);
@@ -38,9 +38,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<UserEntity> findAll() {
         try (Session session = openSession()) {
-            Query<User> query = session.createQuery("FROM User", User.class);
+            Query<UserEntity> query = session.createQuery("FROM User", UserEntity.class);
             return query.list();
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при получении всех пользователей", e);
@@ -48,7 +48,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void update(User user) {
+    public void update(UserEntity user) {
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
             session.merge(user);
@@ -62,7 +62,7 @@ public class UserDaoImpl implements UserDao {
     public boolean delete(Long id) {
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
-            User user = session.get(User.class, id);
+            UserEntity user = session.get(UserEntity.class, id);
             if (user != null) {
                 session.remove(user);
                 return true;

@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

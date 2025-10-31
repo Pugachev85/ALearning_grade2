@@ -1,6 +1,6 @@
 package com.ALearning_grade2.service;
 
-import com.ALearning_grade2.entity.User;
+import com.ALearning_grade2.entity.UserEntity;
 import com.ALearning_grade2.exception.InvalidUserException;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public interface UserService {
      * @throws InvalidUserException если данные пользователя не проходят валидацию
      * @throws RuntimeException     если возникает ошибка при создании пользователя
      */
-    void createUser(User user) throws InvalidUserException;
+    void createUser(UserEntity user) throws InvalidUserException;
 
     /**
      * Получает пользователя по его уникальному идентификатору.
@@ -28,14 +28,14 @@ public interface UserService {
      * @param id уникальный идентификатор пользователя
      * @return Optional содержащий пользователя, если найден, иначе пустой Optional
      */
-    Optional<User> getUserById(Long id);
+    Optional<UserEntity> getUserById(Long id);
 
     /**
      * Получает список всех пользователей в системе.
      *
      * @return список всех пользователей, может быть пустым если пользователи отсутствуют
      */
-    List<User> getAllUsers();
+    List<UserEntity> getAllUsers();
 
     /**
      * Обновляет информацию о существующем пользователе с выполнением валидации данных.
@@ -44,7 +44,7 @@ public interface UserService {
      * @throws InvalidUserException если данные пользователя не проходят валидацию
      * @throws RuntimeException     если возникает ошибка при обновлении пользователя
      */
-    void updateUser(User user) throws InvalidUserException;
+    void updateUser(UserEntity user) throws InvalidUserException;
 
     /**
      * Удаляет пользователя из системы по его уникальному идентификатору.

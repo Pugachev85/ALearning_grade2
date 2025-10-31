@@ -17,6 +17,6 @@
 
         <property name="hibernate.connection.pool_size">5</property>
 
-        <mapping class="com.ALearning_grade2.entity.User"/>
+        <mapping class="com.ALearning_grade2.entity.UserEntity"/>
     </session-factory>
 </hibernate-configuration>
