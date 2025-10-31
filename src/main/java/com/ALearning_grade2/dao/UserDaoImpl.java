@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Реализация интерфейса UserDao для работы с пользователями в базе данных.
+ * Реализация интерфейса UserDao для работы с сущностью UserEntity в базе данных.
  * Использует Hibernate для выполнения CRUD операций.
  */
 public class UserDaoImpl implements UserDao {
@@ -20,19 +20,38 @@ public class UserDaoImpl implements UserDao {
         return HibernateFactory.openSession();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void create(UserEntity user) {
+        if (user == null) {
+            throw new UserServiceException("Пользователь не может быть null");
+        }
+
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
-            session.persist(user);
-            tx.commit();
+            try {
+                session.persist(user);
+                tx.commit();
+            } catch (Exception e) {
+                tx.rollback();
+                throw new UserServiceException("Ошибка при создании пользователя", e);
+            }
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при создании пользователя", e);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<UserEntity> findById(Long id) {
+        if (id == null || id <= 0) {
+            return Optional.empty();
+        }
+
         try (Session session = openSession()) {
             UserEntity user = session.find(UserEntity.class, id);
             return Optional.ofNullable(user);
@@ -41,6 +60,9 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<UserEntity> findAll() {
         try (Session session = openSession()) {
@@ -51,31 +73,68 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void update(UserEntity user) {
+        if (user == null || user.getId() == null) {
+            throw new UserServiceException("Пользователь и ID пользователя не могут быть null для обновления");
+        }
+
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
-            session.merge(user);
-            tx.commit();
+            try {
+                UserEntity existingUser = session.find(UserEntity.class, user.getId());
+                if (existingUser != null) {
+                    session.merge(user);
+                    tx.commit();
+                } else {
+                    tx.rollback();
+                    throw new UserServiceException("Пользователь с ID " + user.getId() + " не найден");
+                }
+            } catch (Exception e) {
+                tx.rollback();
+                if (e instanceof UserServiceException) {
+                    throw (UserServiceException) e;
+                }
+                throw new UserServiceException("Ошибка при обновлении пользователя", e);
+            }
         } catch (Exception e) {
+            if (e instanceof UserServiceException) {
+                throw (UserServiceException) e;
+            }
             throw new UserServiceException("Ошибка при обновлении пользователя", e);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean delete(Long id) {
+        if (id == null || id <= 0) {
+            return false;
+        }
+
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
-            UserEntity user = session.find(UserEntity.class, id);
-            if (user != null) {
-                session.remove(user);
-                tx.commit();
-                return true;
+            try {
+                UserEntity user = session.find(UserEntity.class, id);
+                if (user != null) {
+                    session.remove(user);
+                    tx.commit();
+                    return true;
+                } else {
+                    tx.rollback();
+                    return false;
+                }
+            } catch (Exception e) {
+                tx.rollback();
+                throw new UserServiceException("Ошибка при удалении пользователя", e);
             }
-
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при удалении пользователя", e);
         }
-        return false;
     }
 }

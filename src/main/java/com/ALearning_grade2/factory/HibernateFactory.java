@@ -28,7 +28,10 @@ public final class HibernateFactory {
                     .buildMetadata()
                     .buildSessionFactory();
 
-            LiquibaseRunner.run(HIBERNATE_SESSION_FACTORY);
+            // Запускаем Liquibase только если не отключен и если это не тесты
+            if (!"false".equals(System.getProperty("liquibase.enabled", "true"))) {
+                LiquibaseRunner.run(HIBERNATE_SESSION_FACTORY);
+            }
 
         } catch (LiquibaseException | SQLException e) {
             e.printStackTrace();
