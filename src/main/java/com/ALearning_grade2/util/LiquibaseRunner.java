@@ -15,6 +15,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
+/**
+ * Утилитарный класс для запуска миграций базы данных через Liquibase.
+ * Использует соединение из Hibernate для применения изменений схемы БД.
+ */
 public final class LiquibaseRunner {
 
     private LiquibaseRunner() {

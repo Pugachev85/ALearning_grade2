@@ -10,6 +10,10 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import java.sql.SQLException;
 
+/**
+ * Фабрика для создания и управления Hibernate SessionFactory.
+ * Инициализирует фабрику сессий и запускает миграции базы данных через Liquibase.
+ */
 public final class HibernateFactory {
 
     private static final SessionFactory HIBERNATE_SESSION_FACTORY;

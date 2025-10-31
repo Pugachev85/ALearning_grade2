@@ -6,20 +6,26 @@ import com.ALearning_grade2.exception.InvalidUserException;
 import com.ALearning_grade2.service.UserService;
 import com.ALearning_grade2.service.impl.UserServiceImpl;
 import com.ALearning_grade2.util.ConsoleUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import static com.ALearning_grade2.util.ConsoleUtil.printMessage;
 
+/**
+ * Главный класс приложения для управления пользователями.
+ * Предоставляет консольный интерфейс для выполнения CRUD операций.
+ */
 public class App {
     private static final Logger logger = LogManager.getLogger(App.class);
     private final UserService userService;
 
+    /**
+     * Конструктор инициализирует сервис пользователей.
+     */
     public App() {
         this.userService = new UserServiceImpl(new UserDaoImpl());
     }
@@ -30,6 +36,9 @@ public class App {
         app.showMenu();
     }
 
+    /**
+     * Отображает главное меню приложения и обрабатывает пользовательский ввод.
+     */
     private void showMenu() {
         while (true) {
             printMessage("\n=== User-service ===");
@@ -58,6 +67,9 @@ public class App {
         }
     }
 
+    /**
+     * Создает нового пользователя на основе введенных данных.
+     */
     private void createUser() {
         try {
             String name = ConsoleUtil.readString("Имя: ");
@@ -79,12 +91,18 @@ public class App {
         }
     }
 
+    /**
+     * Получает и отображает пользователя по идентификатору.
+     */
     private void getUserById() {
         Long id = ConsoleUtil.readLong("ID пользователя: ");
         Optional<UserEntity> user = userService.getUserById(id);
         user.ifPresentOrElse(u -> printMessage(u.toString()), () -> printMessage("Пользователь не найден"));
     }
 
+    /**
+     * Отображает список всех пользователей.
+     */
     private void getAllUsers() {
         List<UserEntity> users = userService.getAllUsers();
         if (users.isEmpty()) {
@@ -94,6 +112,9 @@ public class App {
         }
     }
 
+    /**
+     * Обновляет данные существующего пользователя.
+     */
     private void updateUser() {
         Long id = ConsoleUtil.readLong("ID пользователя для обновления: ");
         Optional<UserEntity> existingUser = userService.getUserById(id);
@@ -118,6 +139,9 @@ public class App {
         }
     }
 
+    /**
+     * Удаляет пользователя по идентификатору.
+     */
     private void deleteUser() {
         Long id = ConsoleUtil.readLong("ID пользователя для удаления: ");
         if (userService.deleteUser(id)) {

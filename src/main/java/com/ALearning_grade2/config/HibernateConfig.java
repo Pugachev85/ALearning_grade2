@@ -5,6 +5,11 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
+/**
+ * Конфигурационный класс для инициализации Hibernate SessionFactory.
+ * Обеспечивает создание и закрытие фабрики сессий для работы с БД.
+ */
+
 public class HibernateConfig {
     private static SessionFactory sessionFactory;
 

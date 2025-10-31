@@ -10,6 +10,10 @@ import org.hibernate.query.Query;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация интерфейса UserDao для работы с пользователями в базе данных.
+ * Использует Hibernate для выполнения CRUD операций.
+ */
 public class UserDaoImpl implements UserDao {
 
     private Session openSession() {
@@ -30,7 +34,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Optional<UserEntity> findById(Long id) {
         try (Session session = openSession()) {
-            UserEntity user = session.get(UserEntity.class, id);
+            UserEntity user = session.find(UserEntity.class, id);
             return Optional.ofNullable(user);
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при поиске пользователя по ID", e);
@@ -62,16 +66,16 @@ public class UserDaoImpl implements UserDao {
     public boolean delete(Long id) {
         try (Session session = openSession()) {
             Transaction tx = session.beginTransaction();
-            UserEntity user = session.get(UserEntity.class, id);
+            UserEntity user = session.find(UserEntity.class, id);
             if (user != null) {
                 session.remove(user);
+                tx.commit();
                 return true;
             }
-            tx.commit();
+
         } catch (Exception e) {
             throw new UserServiceException("Ошибка при удалении пользователя", e);
         }
         return false;
     }
 }
-

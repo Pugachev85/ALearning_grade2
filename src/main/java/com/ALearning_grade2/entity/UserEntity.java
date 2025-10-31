@@ -15,7 +15,11 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-
+/**
+ * Сущность пользователя.
+ * Отображается на таблицу 'users' в базе данных.
+ * Содержит основную информацию о пользователе: имя, email, возраст и дату создания.
+ */
 @Entity
 @Table(name = "users")
 @NoArgsConstructor

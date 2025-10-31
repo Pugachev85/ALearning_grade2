@@ -8,6 +8,10 @@ import com.ALearning_grade2.service.UserService;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация сервиса для управления пользователями.
+ * Выполняет валидацию данных и делегирует операции доступа к данным UserDao.
+ */
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
@@ -42,6 +46,12 @@ public class UserServiceImpl implements UserService {
         return userDao.delete(id);
     }
 
+    /**
+     * Валидирует данные пользователя перед выполнением операций.
+     *
+     * @param user пользователь для валидации
+     * @throws InvalidUserException если данные пользователя не проходят валидацию
+     */
     private void validateUser(UserEntity user) throws InvalidUserException {
         if (user.getName() == null
                 || user.getName().trim().isEmpty()) {
