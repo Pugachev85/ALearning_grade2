@@ -17,19 +17,30 @@ import java.sql.SQLException;
 public final class HibernateFactory {
 
     private static final SessionFactory HIBERNATE_SESSION_FACTORY;
+    private static final boolean IS_TEST_MODE;
 
     static {
         try {
-            StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-                    .configure()
-                    .build();
+            IS_TEST_MODE = Boolean.parseBoolean(System.getProperty("test.mode", "false"));
+
+            StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
+
+            if (IS_TEST_MODE) {
+                // Используем тестовую конфигурацию
+                registryBuilder.configure("hibernate-test.cfg.xml");
+            } else {
+                // Используем основную конфигурацию
+                registryBuilder.configure();
+            }
+
+            StandardServiceRegistry registry = registryBuilder.build();
 
             HIBERNATE_SESSION_FACTORY = new MetadataSources(registry)
                     .buildMetadata()
                     .buildSessionFactory();
 
-            // Запускаем Liquibase только если не отключен и если это не тесты
-            if (!"false".equals(System.getProperty("liquibase.enabled", "true"))) {
+            // Запускаем Liquibase только в production режиме
+            if (!IS_TEST_MODE) {
                 LiquibaseRunner.run(HIBERNATE_SESSION_FACTORY);
             }
 
@@ -53,6 +64,10 @@ public final class HibernateFactory {
 
     public static Session openSession() {
         return HIBERNATE_SESSION_FACTORY.openSession();
+    }
+
+    public static boolean isTestMode() {
+        return IS_TEST_MODE;
     }
 
     private HibernateFactory() {

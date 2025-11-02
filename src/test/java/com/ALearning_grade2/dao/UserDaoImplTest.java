@@ -45,24 +45,28 @@ class UserDaoImplTest {
      */
     @BeforeAll
     static void setUpContainer() {
-        // Отключаем Liquibase для тестов
-        System.setProperty("liquibase.enabled", "false");
-        System.setProperty("hibernate.liquibase.enabled", "false");
+        // Устанавливаем тестовый режим
+        System.setProperty("test.mode", "true");
 
         // Настройки Hibernate для тестов
-        System.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         System.setProperty("hibernate.show_sql", "false");
         System.setProperty("hibernate.format_sql", "false");
+
+        // Устанавливаем параметры подключения для тестовой конфигурации
+        System.setProperty("jdbc.url", postgres.getJdbcUrl());
+        System.setProperty("jdbc.username", postgres.getUsername());
+        System.setProperty("jdbc.password", postgres.getPassword());
     }
 
     @AfterAll
     static void tearDown() {
         // Очищаем свойства
-        System.clearProperty("liquibase.enabled");
-        System.clearProperty("hibernate.liquibase.enabled");
-        System.clearProperty("hibernate.hbm2ddl.auto");
+        System.clearProperty("test.mode");
         System.clearProperty("hibernate.show_sql");
         System.clearProperty("hibernate.format_sql");
+        System.clearProperty("jdbc.url");
+        System.clearProperty("jdbc.username");
+        System.clearProperty("jdbc.password");
 
         HibernateFactory.shutdown();
     }
@@ -88,14 +92,32 @@ class UserDaoImplTest {
      * Очищает таблицу users для изоляции тестов.
      */
     private void clearUsersTable() {
+        Session session = null;
         Transaction tx = null;
-        try (Session session = HibernateFactory.openSession()) {
+        try {
+            session = HibernateFactory.openSession();
             tx = session.beginTransaction();
             session.createMutationQuery("DELETE FROM UserEntity").executeUpdate();
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
+            if (tx != null && tx.isActive()) {
+                try {
+                    tx.rollback();
+                } catch (Exception rollbackException) {
+                    // Логируем, но не выбрасываем исключение
+                    System.err.println("Warning: rollback failed: " + rollbackException.getMessage());
+                }
+            }
+        } finally {
+            if (session != null) {
+                try {
+                    if (session.isOpen()) {
+                        session.close();
+                    }
+                } catch (Exception closeException) {
+                    // Логируем, но не выбрасываем исключение
+                    System.err.println("Warning: session close failed: " + closeException.getMessage());
+                }
             }
         }
     }
