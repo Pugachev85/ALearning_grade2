@@ -6,9 +6,15 @@
         </Console>
     </Appenders>
     <Loggers>
-
+        <!-- Разрешаем вывод сообщений для тестов -->
         <Logger name="org.hibernate" level="WARN"/>
         <Logger name="liquibase" level="WARN"/>
+        <Logger name="org.testcontainers" level="WARN"/>
+        <Logger name="com.github.dockerjava" level="WARN"/>
+
+        <!-- Позволяем вывод сообщений об ошибках тестов -->
+        <Logger name="org.junit" level="INFO"/>
+        <Logger name="org.apache.maven.surefire" level="INFO"/>
 
         <Root level="INFO">
             <AppenderRef ref="Console"/>
