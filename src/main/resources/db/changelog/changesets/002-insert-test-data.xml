@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="002-insert-test-data" author="ALearning_grade2" context="default">
+        <comment>Добавление тестовых данных в таблицу users</comment>
+
+        <insert tableName="users">
+            <column name="name" value="Федор Сергеев"/>
+            <column name="email" value="fs@example.com"/>
+            <column name="age" value="23"/>
+            <column name="created_at" value="2024-01-15 10:00:00"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Светлана Петрова"/>
+            <column name="email" value="svet@example.com"/>
+            <column name="age" value="39"/>
+            <column name="created_at" value="2024-01-15 10:30:00"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Дмитрий Сидоров"/>
+            <column name="email" value="dmitry@example.com"/>
+            <column name="age" value="25"/>
+            <column name="created_at" value="2024-01-15 11:00:00"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Mark Twain"/>
+            <column name="email" value="twain@example.com"/>
+            <column name="age" value="190"/>
+            <column name="created_at" value="2024-01-15 11:30:00"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="users">
+                <where>email IN ('fs@example.com', 'svet@example.com', 'dmitry@example.com', 'twain@example.com')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
