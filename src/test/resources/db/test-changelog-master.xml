@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- Включаем те же changesets что и в основном приложении -->
+    <include file="db/changelog/changesets/001-create-users-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changesets/003-add-created-at-default.xml" relativeToChangelogFile="false"/>
+
+    <!-- Тестовые данные -->
+    <include file="db/test-changesets/001-insert-test-data.xml" relativeToChangelogFile="false"/>
+
+</databaseChangeLog>
