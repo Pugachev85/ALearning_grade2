@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${test.postgres.port:5432}/testdb
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:db/test-changelog-master.xml
+    drop-first: false
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    com.ALearning_grade2: DEBUG
+    org.testcontainers: INFO
+    liquibase: INFO
