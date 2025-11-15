@@ -1,7 +1,7 @@
 
 services:
   postgres:
-    image: postgres:15.5
+    image: postgres:latest
     environment:
       POSTGRES_DB: userdb
       POSTGRES_USER: ${POSTGRES_USER:-username}
@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/latest/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U username -d userdb"]
       interval: 10s
