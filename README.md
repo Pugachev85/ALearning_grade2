@@ -9,13 +9,13 @@
 Frontend по адресу http://localhost:8080/users
 
 
-Документация API будет доступна по адресу:
+Документация API доступна по адресу:
 
 Swagger UI: http://localhost:8080/swagger-ui.html
 OpenAPI JSON: http://localhost:8080/api-docs
 
 
-REST API с HATEOAS  доступен по адресу /api/users с поддержкой:
+REST API с HATEOAS  доступен по адресу http://localhost:8080/api/users с поддержкой:
 
 GET /api/users - получить всех пользователей
 
