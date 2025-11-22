@@ -1,7 +1,6 @@
 package com.ALearning_grade2.service.impl;
 
 import com.ALearning_grade2.dto.UserEventDTO;
-import com.ALearning_grade2.service.EmailService;
 import com.ALearning_grade2.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
 
-    private final EmailService emailService;
+    private final LogFakeEmailServiceImpl emailService; //EmailService заменен на реализацию-заглушку
+                                                        // для демонстрации без реальной отправки email
 
     /**
      * {@inheritDoc}

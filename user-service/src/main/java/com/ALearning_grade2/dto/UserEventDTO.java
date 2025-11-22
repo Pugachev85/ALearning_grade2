@@ -1,8 +1,9 @@
 package com.ALearning_grade2.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -10,7 +11,8 @@ import java.io.Serializable;
 /**
  * DTO для передачи событий пользователя через Kafka
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEventDTO implements Serializable {
