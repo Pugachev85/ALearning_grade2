@@ -1,12 +1,7 @@
 
 
-Добавить в user-service поддержку Spring и разработать API, которое позволит управлять данными.
+Добавить к существующей системе паттерны: gateway api, service discovery, circuit breaker, external configuration - реализации данных паттернов можно найти в модулях spring cloud.
 
-    Использовать необходимые модули spring(boot, web, data etc).
-    Реализовать api для получения, создания, обновления и удаления юзера. Важно, entity не должен возвращаться из контроллера, необходимо использовать dto.
-    Заменить Hibernate на Spring data JPA.
-    Написать тесты для API(можно делать это при помощи mockMvc или других средств)
+<H3>Для запуска приложения выполните скрипт start-spring-services.sh
 
-<H3>Перед запуском приложения выполнить команду: "docker-compose up -d" 
-
-Frontend по адресу http://localhost:8080/users
+Frontend по адресу http://localhost:8081/users

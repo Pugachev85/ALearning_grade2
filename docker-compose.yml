@@ -44,16 +44,93 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: user-management-config-server
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config-repo:/app/config-repo
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+  service-discovery:
+    build:
+      context: ./service-discovery
+      dockerfile: Dockerfile
+    container_name: user-management-service-discovery
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://config-server:8888
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-management-user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - service-discovery
+      - postgres
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka
+      CONFIG_SERVER_URL: http://config-server:8888
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: user-management-notification-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - service-discovery
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka
+      CONFIG_SERVER_URL: http://config-server:8888
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: user-management-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - service-discovery
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka
+      CONFIG_SERVER_URL: http://config-server:8888
+
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
+    container_name: user-management-kafka-ui
     ports:
       - "8083:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: user-management-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
       - kafka
-    restart: on-failure
 
 volumes:
   postgres_data:
+    driver: local
+
+networks:
+  user-management-network:
+    driver: bridge

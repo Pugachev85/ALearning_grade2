@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: file:///Users/adm/OpenideProjects/ALearning_grade2/config-repo/
+  config:
+    import: ""
+
+server:
+  port: 8888
+
+logging:
+  level:
+    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: DEBUG
+    org.springframework.cloud.config.server.environment.ConfigServerEnvironmentRepository: DEBUG
+    org.springframework.core.io: DEBUG
+    com.ALearning_grade2: INFO
