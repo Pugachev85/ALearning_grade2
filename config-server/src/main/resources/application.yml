@@ -7,9 +7,7 @@ spring:
     config:
       server:
         native:
-          search-locations: file:///Users/adm/OpenideProjects/ALearning_grade2/config-repo/
-  config:
-    import: ""
+          search-locations: file:/app/config-repo/
 
 server:
   port: 8888

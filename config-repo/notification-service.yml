@@ -3,7 +3,7 @@ server:
 
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: notification-group
   mail:
@@ -17,11 +17,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka
 
 logging:
   level:

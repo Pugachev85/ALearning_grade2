@@ -1,6 +1,10 @@
 spring:
   application:
     name: service-discovery
+  cloud:
+    config:
+      import-check:
+        enabled: false
 
 server:
   port: 8761
