@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true
+
+    gateway:
+      routes:
+
+        # -------------------------------------------------------------
+        # Маршрут к User‑Service
+        # -------------------------------------------------------------
+        - id: user-service
+          uri: lb://user-service               # «lb» → LoadBalancer → Eureka
+          predicates:
+            - Path=/api/users/**               # /api/users/** будет попадать сюда
+          filters:
+            # –‑ Попытка 3‑х повторов, если сервис вернул 503
+            - name: Retry
+              args:
+                retries: 3
+                statuses: SERVICE_UNAVAILABLE

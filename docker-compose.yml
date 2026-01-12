@@ -1,59 +1,112 @@
-
 services:
+  # --------------------------------------------------------------
+  # Инфраструктура
+  # --------------------------------------------------------------
   postgres:
     image: postgres:latest
     environment:
       POSTGRES_DB: userdb
-      POSTGRES_USER: ${POSTGRES_USER:-username}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-111}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/latest/data
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: 111
+    ports: [ "5432:5432" ]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U username -d userdb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   zookeeper:
     image: zookeeper:3.7
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+    ports: [ "2181:2181" ]
 
   kafka:
     image: wurstmeister/kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
+    depends_on: [ zookeeper ]
+    ports: [ "9092:9092" ]
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_CREATE_TOPICS: "user-events:1:1"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    ports:
-      - "8083:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: user-management-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+    ports: [ "8083:8080" ]
     depends_on:
       - kafka
-    restart: on-failure
+    environment:
+      KAFKA_CLUSTERS_0_NAME: user-management-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
 
-volumes:
-  postgres_data:
+  # --------------------------------------------------------------
+  # Config Server
+  # --------------------------------------------------------------
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports: [ "8888:8888" ]
+    volumes:
+      - ./config-repo:/app/config-repo
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,native   # включаем native‑mode
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # --------------------------------------------------------------
+  # Service Discovery (Eureka)
+  # --------------------------------------------------------------
+  service-discovery:
+    build: ./service-discovery
+    ports: [ "8761:8761" ]
+    depends_on: [ config-server ]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://config-server:8888
+
+  # --------------------------------------------------------------
+  # Business services
+  # --------------------------------------------------------------
+  user-service:
+    build: ./user-service
+    ports: [ "8081:8081" ]
+    depends_on:
+      - service-discovery
+      - postgres
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092   # ← переопределяем явно
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka
+
+  notification-service:
+    build: ./notification-service
+    ports: [ "8082:8082" ]
+    depends_on:
+      - service-discovery
+      - kafka
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka
+
+  gateway:
+    build: ./gateway
+    ports: [ "8080:8080" ]
+    depends_on: [ service-discovery ]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-discovery:8761/eureka
