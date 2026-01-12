@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: service-discovery
+  cloud:
+    config:
+      import-check:
+        enabled: false
+
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

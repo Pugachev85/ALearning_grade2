@@ -1,44 +1,5 @@
 spring:
   application:
     name: user-service
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/userdb
-    username: username
-    password: 111
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: false
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-  liquibase:
-    enabled: true
-    change-log: classpath:db/changelog/changelog-master.xml
-    drop-first: false
-    contexts: production,default
-
-  # Thymeleaf configuration
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
-    cache: false
-
-  kafka:
-    bootstrap-servers: localhost:9092
-
-server:
-  port: 8080
-
-logging:
-  level:
-    com.ALearning_grade2: INFO
-    org.hibernate: INFO
-    liquibase: INFO
+  config:
+    import: "optional:configserver:http://config-server:8888"
